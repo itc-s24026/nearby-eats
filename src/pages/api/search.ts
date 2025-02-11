@@ -1,22 +1,32 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
+import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { lat, lng, keyword } = req.query;
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    try {
+        const API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
-  if (!lat || !lng || !keyword) {
-    res.status(400).json({ error: 'Missing required query parameters' });
-    return;
-  }
+        
+        console.log("Google Maps API Key:", API_KEY);
 
-  const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=2000&keyword=${keyword}&key=${apiKey}`;
+        if (!API_KEY) {
+            return res.status(500).json({ error: "API Key がロードされていません。" });
+        }
 
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch data from Google Maps API' });
-  }
+       
+        const keyword = Array.isArray(req.query.keyword) ? req.query.keyword[0] : req.query.keyword;
+        const searchKeyword = keyword ? `&keyword=${encodeURIComponent(keyword)}` : "";
+
+        const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=35.6895,139.6917&radius=1500&type=restaurant${searchKeyword}&key=${API_KEY}`;
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.status !== "OK") {
+            return res.status(500).json({ error: "Google API からのレスポンスエラー", details: data });
+        }
+
+        return res.status(200).json(data);
+    } catch (error) {
+        console.error("サーバーエラー:", error);
+        return res.status(500).json({ error: "サーバーエラー", details: error });
+    }
 }
-
