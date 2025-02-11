@@ -1,5 +1,12 @@
+interface Restaurant {
+  place_id: string;
+  name: string;
+  vicinity: string;
+  rating?: number;
+}
+
 interface RestaurantCardProps {
-  restaurant: any;
+  restaurant: Restaurant;
   isFavorite: boolean;
   toggleFavorite: () => void;
 }
@@ -9,7 +16,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, isFavorite,
     <div className="bg-white shadow-md p-4 rounded-md">
       <h2 className="text-lg font-bold">{restaurant.name}</h2>
       <p className="text-gray-600">{restaurant.vicinity}</p>
-      <p className="text-yellow-500">⭐ {restaurant.rating || "N/A"}</p>
+      <p className="text-yellow-500">⭐ {restaurant.rating ?? "N/A"}</p>
       <button
         onClick={toggleFavorite}
         className={`mt-2 p-2 rounded-md w-full ${
@@ -21,6 +28,5 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, isFavorite,
     </div>
   );
 };
-
 
 export default RestaurantCard;

@@ -2,9 +2,16 @@ import { useState, useEffect } from "react";
 import SearchBar from "@/components/SearchBar";
 import RestaurantCard from "@/components/RestaurantCard";
 
+interface Restaurant {
+  place_id: string;
+  name: string;
+  vicinity: string;
+  rating?: number;
+}
+
 export default function Home() {
-  const [restaurants, setRestaurants] = useState<any[]>([]);
-  const [favorites, setFavorites] = useState<any[]>([]);
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [favorites, setFavorites] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -27,7 +34,7 @@ export default function Home() {
       const data = await response.json();
 
       if (data.status === "OK") {
-        setRestaurants(data.results);
+        setRestaurants(data.results as Restaurant[]);
       } else {
         setError("データを取得できませんでした");
       }
@@ -39,7 +46,7 @@ export default function Home() {
   };
 
   // お気に入りの追加/削除
-  const toggleFavorite = (restaurant: any) => {
+  const toggleFavorite = (restaurant: Restaurant) => {
     const isAlreadyFavorite = favorites.some((fav) => fav.place_id === restaurant.place_id);
 
     let updatedFavorites;

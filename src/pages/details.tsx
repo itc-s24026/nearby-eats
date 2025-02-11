@@ -16,7 +16,7 @@ export default function Details() {
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [isFavorite, setIsFavorite] = useState(false); // 是否已收藏
+  const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
     if (!place_id) return;
@@ -31,6 +31,7 @@ export default function Details() {
           setError("データを取得できませんでした");
         }
       } catch (err) {
+        console.error("API Fetch Error:", err);
         setError("ネットワークエラーが発生しました");
       } finally {
         setLoading(false);
@@ -40,27 +41,24 @@ export default function Details() {
     fetchDetails();
   }, [place_id]);
 
-  // 检查 localStorage 是否已收藏
   useEffect(() => {
     if (!restaurant) return;
-    const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
-    setIsFavorite(favorites.some((fav: Restaurant) => fav.place_id === restaurant.place_id));
+    const favorites: Restaurant[] = JSON.parse(localStorage.getItem("favorites") || "[]");
+    setIsFavorite(favorites.some((fav) => fav.place_id === restaurant.place_id));
   }, [restaurant]);
 
   const toggleFavorite = () => {
     if (!restaurant) return;
-    let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+    let favorites: Restaurant[] = JSON.parse(localStorage.getItem("favorites") || "[]");
 
     if (isFavorite) {
-      // 如果已经收藏，则移除
-      favorites = favorites.filter((fav: Restaurant) => fav.place_id !== restaurant.place_id);
+      favorites = favorites.filter((fav) => fav.place_id !== restaurant.place_id);
     } else {
-      // 否则添加收藏
       favorites.push(restaurant);
     }
 
     localStorage.setItem("favorites", JSON.stringify(favorites));
-    setIsFavorite(!isFavorite); // 更新 UI 状态
+    setIsFavorite(!isFavorite);
   };
 
   if (loading) return <p className="text-center">📡 読み込み中...</p>;
